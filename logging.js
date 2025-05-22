@@ -24,19 +24,19 @@ async function isAuthorized(req)
         }
     
         let secretsJson = await getSecretsJson();
-        if(secretsJson.secrets.logging_microservice === token)
+        if(secretsJson.secrets.logging_microservice.api_token === token)
         {
             return true;
         }
         else
         {
-            appendToLog('cjremmett_logs', 'LOGGING', 'INFO', 'Authorization failed with token ' + token);
+            appendToLog('cjremmett_logs', 'LOGGING', 'INFO', 'Authorization failed due to incorrect token.');
             return false;
         }
     }
     catch(err)
     {
-        appendToLog('MAIN', 'ERROR', 'Exception thrown in isAuthorized: ' + err.message);
+        appendToLog('cjremmett_logs', 'LOGGING', 'ERROR', 'Exception thrown in isAuthorized: ' + err.message);
         return false;
     }
 }
@@ -50,7 +50,7 @@ function getUTCTimestampString()
 }
 
 
-router.get('/', (req, res) => {
+loggingRouter.get('/', (req, res) => {
     try
     {
         res.status(200);
@@ -68,7 +68,7 @@ router.get('/', (req, res) => {
 });
 
 
-router.post('/append-to-log', async (req, res) => {
+loggingRouter.post('/append-to-log', async (req, res) => {
     // JSON body parameters:
     //  table
     //  category
@@ -79,7 +79,7 @@ router.post('/append-to-log', async (req, res) => {
         let authorized = await isAuthorized(req);
         if(authorized != true)
         {
-            res.status(400);
+            res.status(401);
             res.send();
             return;
         }
@@ -110,7 +110,7 @@ router.post('/append-to-log', async (req, res) => {
 });
 
 
-router.post('/log-resource-access', async (req, res) => {
+loggingRouter.post('/log-resource-access', async (req, res) => {
     // JSON body parameters:
     //  resource
     //  ip_address
@@ -119,11 +119,19 @@ router.post('/log-resource-access', async (req, res) => {
         let authorized = await isAuthorized(req);
         if(authorized != true)
         {
-            res.status(400);
+            res.status(401);
             res.send();
             return;
         }
         
+        if(!req.body)
+        {
+            appendToLog('cjremmett_logs', 'LOGGING', 'INFO', 'API request made to /log-resource-access with no request body.');
+            res.status(400);
+            res.send();
+            return;
+        }
+
         let resource = req.body.resource;
         let ipAddress = req.body.ip_address;
         if(resource == null || typeof resource != 'string' || ipAddress == null || typeof ipAddress != 'string')
@@ -148,7 +156,7 @@ router.post('/log-resource-access', async (req, res) => {
 });
 
 
-router.post('/log-webpage-access', (req, res) => {
+loggingRouter.post('/log-webpage-access', (req, res) => {
     // Query parameters:
     //  webpage
     try

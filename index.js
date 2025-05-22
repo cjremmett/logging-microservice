@@ -23,5 +23,5 @@ app.use('/logging', loggingRouter);
 app.listen(port, () => {
     app.set('trust proxy', true);
     console.log(`Express.js API listening on port ${port}.`);
-    appendToLog('MAIN', 'INFO', `Express.js API listening on port ${port}.`);
+    appendToLog('cjremmett_logs','LOGGING', 'TRACE', `Express.js API listening on port ${port}.`);
 });
