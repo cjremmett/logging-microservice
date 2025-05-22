@@ -103,7 +103,7 @@ loggingRouter.post('/append-to-log', async (req, res) => {
     }
     catch(err)
     {
-        appendToLog('MAIN', 'ERROR', 'Exception thrown in /append-to-log: ' + err.message);
+        appendToLog('cjremmett_logs', 'LOGGING', 'ERROR', 'Exception thrown in /append-to-log: ' + err.message);
         res.status(500);
         res.send();
     }
@@ -188,7 +188,7 @@ loggingRouter.post('/log-webpage-access', (req, res) => {
 async function appendToLog(table, category, level, message)
 {
     // Currently the supported tables are:
-    // cjremmett_logs, ai_logs
+    // cjremmett_logs
     try
     {
         const logRecord = {
