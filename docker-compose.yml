@@ -1,0 +1,6 @@
+services:
+  node-application:
+    build: .
+    container_name: node-application
+    network_mode: "host"
+    restart: always
